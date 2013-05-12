@@ -1,4 +1,5 @@
 digipad = {}
+dofile(minetest.get_modpath("digipad").."/terminal.lua")  -- add terminal to mod
 -- ========================
 --Declare shared variables / functions
 -- ========================
