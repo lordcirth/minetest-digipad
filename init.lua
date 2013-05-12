@@ -110,7 +110,6 @@ minetest.register_node("digipad:digipad", {
 	digiline = 
 	{
 		receptor={},
-		effector={},
 	},
 	groups = {choppy = 3, dig_immediate = 2},
 	sounds = default.node_sound_stone_defaults(),
@@ -143,7 +142,6 @@ minetest.register_node("digipad:digipad_hard", {
 	digiline = 
 	{
 		receptor={},
-		effector={},
 	},
 	node_box = {
 		type = "fixed",
