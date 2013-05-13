@@ -6,15 +6,15 @@ digipad.terminal_formspec =
 "size[4,5;]"..
 "field[0,5;5,1;input;;]"
 
-help_text = "Commands preceded with a / go to the terminal. All others are sent along the digiline."
+-- ================
+-- Function declarations
+-- ================
+
 digipad.help = function(pos)
 	digipad.new_line(pos, "Commands preceded with a / go to the")
 	digipad.new_line(pos, "terminal. All others are sent along the digiline.")
 	digipad.new_line(pos, "Commands are:   /clear   /help")
 end
---~ terminal_cmds = {
---~ 	
---~ }
 
 digipad.parse_cmd = function(pos, cmd)
 	local meta = minetest.env:get_meta(pos)
@@ -52,6 +52,10 @@ end
 	
 end
 
+-- ================
+-- Node declarations
+-- ================
+ 
 minetest.register_node("digipad:keyb", {
 	description = "Digiline keyboard",
 	walkable = true,
@@ -64,7 +68,7 @@ minetest.register_node("digipad:keyb", {
 		on_construct = function(pos)
 			local meta = minetest.env:get_meta(pos)
 			meta:set_string("formspec", digipad.keyb_formspec)
-			
+			meta:set_string("Infotext", "Keyboard")
 		end,
 		on_receive_fields = function(pos, formname, fields, sender)
 			local channel = "tty1"
@@ -76,7 +80,7 @@ minetest.register_node("digipad:keyb", {
 })
 
 minetest.register_node("digipad:terminal", {
-	description = "Text entry terminal",
+	description = "Interactive Terminal",
 	walkable = true,
 	digiline = 
 		{
@@ -89,6 +93,7 @@ minetest.register_node("digipad:terminal", {
 		on_construct = function(pos)
 			local meta = minetest.env:get_meta(pos)
 			meta:set_string("formspec", digipad.terminal_formspec)
+			meta:set_string("Infotext", "Terminal")
 			meta:set_int("lines", 0)
 			digipad.new_line(pos, "/help for help")
 		end,
@@ -106,4 +111,26 @@ minetest.register_node("digipad:terminal", {
 			local formspec = meta:get_string("formspec")
 			minetest.show_formspec("singleplayer", "terminal", formspec)
 		end,
+})
+
+-- ================
+--Crafting recipes
+-- ================
+
+minetest.register_craft({
+	output = "digipad:keyb",
+	recipe = {
+		{"mesecons_button:button_off", "mesecons_button:button_off", "mesecons_button:button_off"},
+		{"mesecons_button:button_off", "mesecons_button:button_off", "mesecons_button:button_off"},
+		{"default:steel_ingot", "digilines:wire_std_00000000", "default:steel_ingot"}
+	}
+})
+
+minetest.register_craft({
+	output = "digipad:terminal",
+	recipe = {
+		{"", "digilines_lcd:lcd", "default:steel_ingot"},
+		{"digipad:keyb", "mesecons_luacontroller:luacontroller0000", "default:steel_ingot"},
+		{"default:steel_ingot", "digilines:wire_std_00000000", "default:steel_ingot"}
+	}
 })
