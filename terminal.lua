@@ -17,15 +17,20 @@ digipad.help = function(pos)
 end
 
 digipad.parse_cmd = function(pos, cmd)
-	local meta = minetest.env:get_meta(pos)
 	if cmd == "clear" then
-		print("clearing screen")
-		meta:set_string("formspec", digipad.terminal_formspec) -- reset to default formspec
-		meta:set_int("lines", 0)  -- start at the top of the screen again
+		digipad.clear(pos)
 	elseif cmd == "help" then
 		digipad.help(pos)
+	else
+		digipad.new_line(pos, cmd .. ": command not found")
 	end
-	
+end
+
+digipad.clear = function(pos)
+	local meta = minetest.env:get_meta(pos)
+	print("clearing screen")
+	meta:set_string("formspec", digipad.terminal_formspec) -- reset to default formspec
+	meta:set_int("lines", 0)  -- start at the top of the screen again
 end
 
 local on_digiline_receive = function (pos, node, channel, msg)
@@ -34,10 +39,15 @@ end
 
  digipad.new_line = function(pos, text)
 	local max_chars = 40
+	local max_lines = 10
 	local meta = minetest.env:get_meta(pos)
 	local formspec = meta:get_string("formspec")
 	local lines = meta:get_int("lines")
 	local offset = lines / 4
+	
+	if lines > max_lines then  -- clear screen before printing the line - so it's never blank
+		digipad.clear(pos)
+	end
 	
 	line = string.sub(text, 1, max_chars) -- take first chars
 	local new_formspec = formspec .. "label[0," .. offset .. ";" .. line .. "]"
@@ -45,11 +55,12 @@ end
 	lines = lines + 1
 	meta:set_int("lines", lines)
 	meta:set_string("formspec", new_formspec)
-	if string.len(text) > max_chars then -- If not all could be printed, recurse
+	
+	if string.len(text) > max_chars then -- If not all could be printed, recurse on the rest of the string
 		text = string.sub(text,max_chars)
 		digipad.new_line(pos, text)
 	end
-	
+
 end
 
 -- ================
@@ -109,7 +120,7 @@ minetest.register_node("digipad:terminal", {
 				digiline:receptor_send(pos, digiline.rules.default, channel, text)
 			end
 			local formspec = meta:get_string("formspec")
-			minetest.show_formspec("singleplayer", "terminal", formspec)
+			--minetest.show_formspec("singleplayer", "terminal", formspec)  doesn't allow submit anyway
 		end,
 })
 
