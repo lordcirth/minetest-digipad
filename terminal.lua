@@ -69,30 +69,79 @@ end
  
 minetest.register_node("digipad:keyb", {
 	description = "Digiline keyboard",
+	paramtype = "light",
+	paramtype2 = "facedir",
+	sunlight_propagates = true,
 	walkable = true,
 	digiline = 
 		{
 			receptor={},
 			effector={},
 		},
-		groups = {dig_immediate = 2},
-		on_construct = function(pos)
-			local meta = minetest.env:get_meta(pos)
-			meta:set_string("formspec", digipad.keyb_formspec)
-			meta:set_string("Infotext", "Keyboard")
-		end,
-		on_receive_fields = function(pos, formname, fields, sender)
-			local channel = "tty1"
-			local text = fields.input
-			if text ~= nil then
-				digiline:receptor_send(pos, digiline.rules.default, channel, text)
-			end
-		end,
+	tiles = {
+		"keyb.png",
+		"digicode_side.png",
+		"digicode_side.png",
+		"digicode_side.png",
+		"digicode_side.png",
+		"digicode_side.png"
+	},
+	
+	drawtype = "nodebox",
+	selection_box = {
+		type ="fixed",
+		fixed = {-0.500000,-0.500000,-0.000000,0.500000,-0.3,0.5}, -- Keyboard
+	
+	},
+	node_box = {
+		type ="fixed",
+		fixed = {-0.500000,-0.500000,-0.000000,0.500000,-0.3,0.5}, -- Keyboard
+	
+	},
+	groups = {dig_immediate = 2},
+	on_construct = function(pos)
+		local meta = minetest.env:get_meta(pos)
+		meta:set_string("formspec", digipad.keyb_formspec)
+		meta:set_string("Infotext", "Keyboard")
+	end,
+	on_receive_fields = function(pos, formname, fields, sender)
+		local channel = "tty1"
+		local text = fields.input
+		if text ~= nil then
+			digiline:receptor_send(pos, digiline.rules.default, channel, text)
+		end
+	end,
 })
 
 minetest.register_node("digipad:terminal", {
 	description = "Interactive Terminal",
+	paramtype = "light",
+	paramtype2 = "facedir",
+	sunlight_propagates = true,
 	walkable = true,
+	drawtype = "nodebox",
+	selection_box = {
+		type = "fixed",
+		fixed = {
+			{-0.5, -0.5, -0.5, 0.5, -0.3, 0}, -- Keyboard
+			{-0.5, -0.5, 0, 0.5, 0.5, 0.5}, --Screen
+		}
+	},
+	node_box = {
+		type = "fixed",
+		fixed = {
+			{-0.5, -0.5, -0.5, 0.5, -0.3, 0}, -- Keyboard
+			{-0.5, -0.5, 0, 0.5, 0.5, 0.5}, --Screen
+		}
+	},
+	tiles = {
+		"terminal_top.png",
+		"digicode_side.png",
+		"digicode_side.png",
+		"digicode_side.png",
+		"digicode_side.png",
+		"terminal_front.png"
+	},
 	digiline = 
 		{
 			receptor={},
