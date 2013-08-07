@@ -7,6 +7,9 @@ properties.  It is a full 1m wide, so it can cover a wire channel in a wall
 completely.  It also has the same digging properties as a steel block, so some
 random noob with a stone pickaxe can't dig it.
 
+The keyboard allows arbitrary strings to be entered.  The terminal allows entering strings, and receiving responses.
+These have no textures yet. 
+
 See also - https://github.com/lordcirth/minetest-wireless adds wireless
 transmitters/receivers - execellent for passworded doors with no traceable
 wire.
