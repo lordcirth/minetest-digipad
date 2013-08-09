@@ -8,8 +8,7 @@ completely.  It also has the same digging properties as a steel block, so some
 random noob with a stone pickaxe can't dig it.
 
 The keyboard allows arbitrary strings to be entered.  The terminal allows entering strings, and receiving responses.
-These have no textures yet. 
 
 See also - https://github.com/lordcirth/minetest-wireless adds wireless
-transmitters/receivers - execellent for passworded doors with no traceable
-wire.
+transmitters/receivers - excellent for passworded doors with no traceable
+wire.  Just link a digipad to a wireless transmitter, and a receiver to the luacontroller for the door.

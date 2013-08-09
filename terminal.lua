@@ -149,28 +149,28 @@ minetest.register_node("digipad:terminal", {
 				action = on_digiline_receive
 			},
 		},
-		groups = {dig_immediate = 2},
-		on_construct = function(pos)
-			local meta = minetest.env:get_meta(pos)
-			meta:set_string("formspec", digipad.terminal_formspec)
-			meta:set_string("Infotext", "Terminal")
-			meta:set_int("lines", 0)
-			digipad.new_line(pos, "/help for help")
-		end,
-		on_receive_fields = function(pos, formname, fields, sender)
-			local meta = minetest.env:get_meta(pos)
-			local text = fields.input
-			digipad.new_line(pos, "> " .. text)
-			local channel = "tty1"
-			if string.sub(text,1,1) == "/" then  -- command is for terminal
-				text = string.sub(text, 2) -- cut off first char
-				digipad.parse_cmd(pos, text)
-			elseif text ~= nil then
-				digiline:receptor_send(pos, digiline.rules.default, channel, text)
-			end
-			local formspec = meta:get_string("formspec")
-			--minetest.show_formspec("singleplayer", "terminal", formspec)  doesn't allow submit anyway
-		end,
+	groups = {dig_immediate = 2},
+	on_construct = function(pos)
+		local meta = minetest.env:get_meta(pos)
+		meta:set_string("formspec", digipad.terminal_formspec)
+		meta:set_string("Infotext", "Terminal")
+		meta:set_int("lines", 0)
+		digipad.new_line(pos, "/help for help")
+	end,
+	on_receive_fields = function(pos, formname, fields, sender)
+		local meta = minetest.env:get_meta(pos)
+		local text = fields.input
+		digipad.new_line(pos, "> " .. text)
+		local channel = "tty1"
+		if string.sub(text,1,1) == "/" then  -- command is for terminal
+			text = string.sub(text, 2) -- cut off first char
+			digipad.parse_cmd(pos, text)
+		elseif text ~= nil then
+			digiline:receptor_send(pos, digiline.rules.default, channel, text)
+		end
+		local formspec = meta:get_string("formspec")
+		--minetest.show_formspec("singleplayer", "terminal", formspec)  doesn't allow submit anyway
+	end,
 })
 
 -- ================
