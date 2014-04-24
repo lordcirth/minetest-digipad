@@ -12,7 +12,7 @@ digipad.keyb_form_second =
 "field[0,1;5,1;input;Input;]"
 
 digipad.keyb_base_chan = "keyb"
-digipad.keyb_def_chan = 1
+digipad.keyb_def_chan = "1"
 digipad.term_base_chan = "tty"
 digipad.term_def_chan = "1"
 
@@ -52,6 +52,13 @@ digipad.delete_spaces = function(s)
 	return s:find'^%s*$' and '' or s:match'^%s*(.*%S)'
 end
 
+digipad.clear = function(pos)
+	local meta = minetest.env:get_meta(pos)
+	print("clearing screen")
+	meta:set_string("formspec", digipad.terminal_formspec) -- reset to default formspec
+	meta:set_int("lines", 0)  -- start at the top of the screen again
+end
+
 digipad.parse_cmd = function(pos, cmd)	
 	if cmd == "clear" then
 		digipad.clear(pos)
@@ -59,28 +66,20 @@ digipad.parse_cmd = function(pos, cmd)
 		digipad.help(pos)
 	elseif string.sub(cmd, 1, 7) == "channel" then -- If cmd _starts_with_ "channel", since we need an argument too.
 		raw_arg = string.sub(cmd, 8) -- Cut "channel" out
-		
 		arg = digipad.delete_spaces(raw_arg)
-		
 		if (arg ~= nil) and (arg ~= "") then
 			digipad.set_channel(pos, digipad.term_base_chan .. arg)
 			digipad.new_line(pos, "Channel set to " .. digipad.term_base_chan .. arg)
 		else -- no argument
 			digipad.new_line(pos, "Example: ''/channel 2'' will change")
-			digipad.new_line(pos, "channel to ''tty2'' ")
+			digipad.new_line(pos, "the channel to ''tty2'' ")
 		end
-		
 	else
 		digipad.new_line(pos, cmd .. ": command not found")
 	end
 end
 
-digipad.clear = function(pos)
-	local meta = minetest.env:get_meta(pos)
-	print("clearing screen")
-	meta:set_string("formspec", digipad.terminal_formspec) -- reset to default formspec
-	meta:set_int("lines", 0)  -- start at the top of the screen again
-end
+
 
 local on_digiline_receive = function (pos, node, channel, msg)
 	digipad.new_line(pos, msg)
@@ -90,14 +89,14 @@ end
 	local max_chars = 40
 	local max_lines = 10
 	local meta = minetest.env:get_meta(pos)
-	local formspec = meta:get_string("formspec")
-	local lines = meta:get_int("lines")
-	local offset = lines / 4
-	
+	local lines = meta:get_int("lines")	
 	if lines > max_lines then  -- clear screen before printing the line - so it's never blank
 		digipad.clear(pos)
+		lines = meta:get_int("lines") --update after clear
 	end
 	
+	local formspec = meta:get_string("formspec")
+	local offset = lines / 4
 	line = string.sub(text, 1, max_chars) -- take first chars
 	local new_formspec = formspec .. "label[0," .. offset .. ";" .. line .. "]"
 	meta:set_string("formspec", new_formspec)
@@ -152,7 +151,6 @@ minetest.register_node("digipad:keyb", {
 		local meta = minetest.env:get_meta(pos)
 		meta:set_string("formspec", digipad.keyb_formspec)
 		meta:set_string("Infotext", "Keyboard")
-		meta:set_int("chan_num", digipad.keyb_def_chan)
 		 -- set default channel (base + default extension) :
 		meta:set_string("channel", digipad.keyb_base_chan .. digipad.keyb_def_chan)
 	end,
@@ -162,9 +160,9 @@ minetest.register_node("digipad:keyb", {
 		local text = fields.input
 		if (fields.chan ~= "") and (fields.chan ~= nil) then 
 			local chan_num = fields.chan
-			meta:set_string("chan_num", chan_num) -- save user's channel choice
+			meta:set_string("chan_num", chan_num) -- save user's channel suffix choice
 			channel = digipad.keyb_base_chan .. chan_num
-			meta:set_string("channel", channel)
+			meta:set_string("channel", channel)  -- save resulting channel
 		end
 		if text ~= nil then
 			digiline:receptor_send(pos, digiline.rules.default, channel, text)
