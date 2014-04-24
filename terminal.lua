@@ -48,12 +48,13 @@ digipad.parse_cmd = function(pos, cmd)
 		end  --DOESN'T WORK
 		print ("End " .. "'" .. raw_arg .. "'")
 		print(raw_arg)
-		if raw_arg ~= nil then
+		if (raw_arg ~= nil) and (raw_arg ~= "") then
 			arg = raw_arg -- sanitized output (hopefully)
 			digipad.set_channel(pos, digipad.term_base_chan .. arg)
 			digipad.new_line(pos, "Channel set to " .. digipad.term_base_chan .. arg)
 		else -- no argument
-			digipad.new_line(pos, "Example:'' /channel 2'' will change channel to ''tty2'' ")
+			digipad.new_line(pos, "Example: ''/channel 2'' will change")
+			digipad.new_line(pos, "channel to ''tty2'' ")
 		end
 		
 	else
