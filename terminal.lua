@@ -4,6 +4,7 @@
 
 digipad.keyb_formspec =
 "size[4,1;]"..
+"label[0,0;Channel]"..
 "field[0,1;5,1;input;Input;]"
 
 digipad.terminal_formspec =
@@ -11,7 +12,9 @@ digipad.terminal_formspec =
 "field[0,5;5,1;input;;]"
 
 digipad.keyb_base_chan = "keyb"
+digipad.keyb_def_chan = "1"
 digipad.term_base_chan = "tty"
+digipad.term_def_chan = "1"
 
 -- ================
 -- Function declarations
@@ -110,9 +113,12 @@ minetest.register_node("digipad:keyb", {
 		local meta = minetest.env:get_meta(pos)
 		meta:set_string("formspec", digipad.keyb_formspec)
 		meta:set_string("Infotext", "Keyboard")
+		 -- set default channel (base + default extension) :
+		meta:set_string("channel", digipad.keyb_base_chan .. digipad.keyb_def_chan)
 	end,
 	on_receive_fields = function(pos, formname, fields, sender)
-		local channel = digipad.keyb_base_chan .. "1"
+		local meta = minetest.env:get_meta(pos)
+		local channel = meta.get_string("channel")
 		local text = fields.input
 		if text ~= nil then
 			digiline:receptor_send(pos, digiline.rules.default, channel, text)
@@ -162,12 +168,15 @@ minetest.register_node("digipad:terminal", {
 		meta:set_string("formspec", digipad.terminal_formspec)
 		meta:set_string("Infotext", "Terminal")
 		meta:set_int("lines", 0)
-		digipad.new_line(pos, "/help for help")
+		-- set default channel (base + default extension) :
+		meta:set_string("channel", digipad.term_base_chan .. digipad.term_def_chan)
+		
+		digipad.new_line(pos, "/help for help")  -- print welcome text
 	end,
 	on_receive_fields = function(pos, formname, fields, sender)
 		local meta = minetest.env:get_meta(pos)
 		local text = fields.input
-		local channel = digipad.term_base_chan .. 1
+		local channel = meta:get_string("channel")
 		if text ~= nil then
 			digipad.new_line(pos, "> " .. text)
 			
