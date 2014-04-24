@@ -11,16 +11,17 @@ digipad.keyb_form_second =
  "]"..
 "field[0,1;5,1;input;Input;]"
 
-digipad.keyb_formspec = digipad.keyb_form_first .. "keyb1" .. digipad.keyb_form_second
-
-digipad.terminal_formspec =
-"size[4,5;]"..
-"field[0,5;5,1;input;;]"
-
 digipad.keyb_base_chan = "keyb"
 digipad.keyb_def_chan = 1
 digipad.term_base_chan = "tty"
 digipad.term_def_chan = "1"
+
+digipad.keyb_formspec = digipad.keyb_form_first .. digipad.keyb_base_chan ..
+	digipad.keyb_def_chan  .. digipad.keyb_form_second
+
+digipad.terminal_formspec =
+"size[4,5;]"..
+"field[0,5;5,1;input;;]"
 
 -- ================
 -- Function declarations
@@ -45,6 +46,11 @@ digipad.help = function(pos)  -- print help text
 	digipad.new_line(pos, "terminal. All others are sent along the digiline.")
 	digipad.new_line(pos, "Commands are:   /clear  /help  /channel")
 end
+digipad.delete_spaces = function(s)
+	-- David Manura
+	-- trim whitespace from both ends of string
+	return s:find'^%s*$' and '' or s:match'^%s*(.*%S)'
+end
 
 digipad.parse_cmd = function(pos, cmd)	
 	if cmd == "clear" then
@@ -53,18 +59,10 @@ digipad.parse_cmd = function(pos, cmd)
 		digipad.help(pos)
 	elseif string.sub(cmd, 1, 7) == "channel" then -- If cmd _starts_with_ "channel", since we need an argument too.
 		raw_arg = string.sub(cmd, 8) -- Cut "channel" out
-		print ("Start " .. "'" .. raw_arg .. "'")
-		while string.sub(raw_arg, 1,1) == " " do -- While first character is a space,
-			raw_arg = string.sub(raw_arg, 2) -- cut that first char
-		end --WORKS
-		print ("Mid " .. "'" .. raw_arg .. "'")
-		while string.sub(raw_arg, -1,-1) == " " do -- While last character is a space,
-			raw_arg = string.sub(raw_arg, 1, -2) -- cut that last char
-		end  --DOESN'T WORK
-		print ("End " .. "'" .. raw_arg .. "'")
-		print(raw_arg)
-		if (raw_arg ~= nil) and (raw_arg ~= "") then
-			arg = raw_arg -- sanitized output (hopefully)
+		
+		arg = digipad.delete_spaces(raw_arg)
+		
+		if (arg ~= nil) and (arg ~= "") then
 			digipad.set_channel(pos, digipad.term_base_chan .. arg)
 			digipad.new_line(pos, "Channel set to " .. digipad.term_base_chan .. arg)
 		else -- no argument
