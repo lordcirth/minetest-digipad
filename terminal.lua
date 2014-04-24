@@ -2,23 +2,38 @@
 -- Variable declarations
 -- ================
 
-digipad.keyb_formspec =
+digipad.keyb_form_first = 
 "size[4,1;]"..
-"label[0,0;Channel]"..
+"field[0,0;2,1;chan;Channel;]"..
+"label[0,0;Channel "
+
+digipad.keyb_form_second =
+ "]"..
 "field[0,1;5,1;input;Input;]"
+
+digipad.keyb_formspec = digipad.keyb_form_first .. "keyb1" .. digipad.keyb_form_second
 
 digipad.terminal_formspec =
 "size[4,5;]"..
 "field[0,5;5,1;input;;]"
 
 digipad.keyb_base_chan = "keyb"
-digipad.keyb_def_chan = "1"
+digipad.keyb_def_chan = 1
 digipad.term_base_chan = "tty"
 digipad.term_def_chan = "1"
 
 -- ================
 -- Function declarations
 -- ================
+digipad.get_keyb_formspec = function(pos)  -- Construct updated formspec for keyboard
+local meta = minetest.env:get_meta(pos)
+local current_chan = meta:get_string("chan_num")
+new_formspec = "size[4,1;]"..
+"field[0,0;2,1;chan;Channel;" .. current_chan .. "]"..
+"label[0,0;Channel " ..  digipad.keyb_base_chan .. current_chan .. "]"..
+"field[0,1;5,1;input;Input;]"
+return new_formspec
+end
 
 digipad.set_channel = function(pos, new_channel)
 local meta = minetest.env:get_meta(pos)
@@ -139,17 +154,27 @@ minetest.register_node("digipad:keyb", {
 		local meta = minetest.env:get_meta(pos)
 		meta:set_string("formspec", digipad.keyb_formspec)
 		meta:set_string("Infotext", "Keyboard")
+		meta:set_int("chan_num", digipad.keyb_def_chan)
 		 -- set default channel (base + default extension) :
 		meta:set_string("channel", digipad.keyb_base_chan .. digipad.keyb_def_chan)
 	end,
 	on_receive_fields = function(pos, formname, fields, sender)
 		local meta = minetest.env:get_meta(pos)
-		local channel = meta.get_string("channel")
+		local channel = meta:get_string("channel")
 		local text = fields.input
+		if (fields.chan ~= "") and (fields.chan ~= nil) then 
+			local chan_num = fields.chan
+			meta:set_string("chan_num", chan_num) -- save user's channel choice
+			channel = digipad.keyb_base_chan .. chan_num
+			meta:set_string("channel", channel)
+		end
 		if text ~= nil then
 			digiline:receptor_send(pos, digiline.rules.default, channel, text)
 		end
+		
+		meta:set_string("formspec", digipad.get_keyb_formspec(pos))-- generate new formspec
 	end,
+	
 })
 
 minetest.register_node("digipad:terminal", {
