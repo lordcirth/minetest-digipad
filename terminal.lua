@@ -28,7 +28,7 @@ end
 digipad.help = function(pos)  -- print help text
 	digipad.new_line(pos, "Commands preceded with a / go to the")
 	digipad.new_line(pos, "terminal. All others are sent along the digiline.")
-	digipad.new_line(pos, "Commands are:   /clear   /help")
+	digipad.new_line(pos, "Commands are:   /clear  /help  /channel")
 end
 
 digipad.parse_cmd = function(pos, cmd)	
@@ -38,13 +38,24 @@ digipad.parse_cmd = function(pos, cmd)
 		digipad.help(pos)
 	elseif string.sub(cmd, 1, 7) == "channel" then -- If cmd _starts_with_ "channel", since we need an argument too.
 		raw_arg = string.sub(cmd, 8) -- Cut "channel" out
-		
+		print ("Start " .. "'" .. raw_arg .. "'")
 		while string.sub(raw_arg, 1,1) == " " do -- While first character is a space,
 			raw_arg = string.sub(raw_arg, 2) -- cut that first char
+		end --WORKS
+		print ("Mid " .. "'" .. raw_arg .. "'")
+		while string.sub(raw_arg, -1,-1) == " " do -- While last character is a space,
+			raw_arg = string.sub(raw_arg, 1, -2) -- cut that last char
+		end  --DOESN'T WORK
+		print ("End " .. "'" .. raw_arg .. "'")
+		print(raw_arg)
+		if raw_arg ~= nil then
+			arg = raw_arg -- sanitized output (hopefully)
+			digipad.set_channel(pos, digipad.term_base_chan .. arg)
+			digipad.new_line(pos, "Channel set to " .. digipad.term_base_chan .. arg)
+		else -- no argument
+			digipad.new_line(pos, "Example:'' /channel 2'' will change channel to ''tty2'' ")
 		end
-		arg = raw_arg -- sanitized output (hopefully)
-		-- print(arg)
-		digipad.set_channel(pos, digipad.term_base_chan .. arg)
+		
 	else
 		digipad.new_line(pos, cmd .. ": command not found")
 	end
@@ -191,6 +202,7 @@ minetest.register_node("digipad:terminal", {
 		local meta = minetest.env:get_meta(pos)
 		local text = fields.input
 		local channel = meta:get_string("channel")
+		print(channel)
 		if text ~= nil then
 			digipad.new_line(pos, "> " .. text)
 			
