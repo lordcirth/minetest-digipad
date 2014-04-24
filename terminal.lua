@@ -20,17 +20,31 @@ digipad.term_def_chan = "1"
 -- Function declarations
 -- ================
 
-digipad.help = function(pos)
+digipad.set_channel = function(pos, new_channel)
+local meta = minetest.env:get_meta(pos)
+meta:set_string("channel", new_channel)
+end
+
+digipad.help = function(pos)  -- print help text
 	digipad.new_line(pos, "Commands preceded with a / go to the")
 	digipad.new_line(pos, "terminal. All others are sent along the digiline.")
 	digipad.new_line(pos, "Commands are:   /clear   /help")
 end
 
-digipad.parse_cmd = function(pos, cmd)
+digipad.parse_cmd = function(pos, cmd)	
 	if cmd == "clear" then
 		digipad.clear(pos)
 	elseif cmd == "help" then
 		digipad.help(pos)
+	elseif string.sub(cmd, 1, 7) == "channel" then -- If cmd _starts_with_ "channel", since we need an argument too.
+		raw_arg = string.sub(cmd, 8) -- Cut "channel" out
+		
+		while string.sub(raw_arg, 1,1) == " " do -- While first character is a space,
+			raw_arg = string.sub(raw_arg, 2) -- cut that first char
+		end
+		arg = raw_arg -- sanitized output (hopefully)
+		-- print(arg)
+		digipad.set_channel(pos, digipad.term_base_chan .. arg)
 	else
 		digipad.new_line(pos, cmd .. ": command not found")
 	end
