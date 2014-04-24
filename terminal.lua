@@ -160,13 +160,16 @@ minetest.register_node("digipad:terminal", {
 	on_receive_fields = function(pos, formname, fields, sender)
 		local meta = minetest.env:get_meta(pos)
 		local text = fields.input
-		digipad.new_line(pos, "> " .. text)
 		local channel = "tty1"
-		if string.sub(text,1,1) == "/" then  -- command is for terminal
-			text = string.sub(text, 2) -- cut off first char
-			digipad.parse_cmd(pos, text)
-		elseif text ~= nil then
-			digiline:receptor_send(pos, digiline.rules.default, channel, text)
+		if text ~= nil then
+			digipad.new_line(pos, "> " .. text)
+			
+			if string.sub(text,1,1) == "/" then  -- command is for terminal
+				text = string.sub(text, 2) -- cut off first char
+				digipad.parse_cmd(pos, text)
+			else
+				digiline:receptor_send(pos, digiline.rules.default, channel, text)
+			end
 		end
 		local formspec = meta:get_string("formspec")
 		--minetest.show_formspec("singleplayer", "terminal", formspec)  doesn't allow submit anyway
