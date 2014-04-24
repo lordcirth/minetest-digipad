@@ -1,3 +1,7 @@
+-- ================
+-- Variable declarations
+-- ================
+
 digipad.keyb_formspec =
 "size[4,1;]"..
 "field[0,1;5,1;input;Input;]"
@@ -5,6 +9,9 @@ digipad.keyb_formspec =
 digipad.terminal_formspec =
 "size[4,5;]"..
 "field[0,5;5,1;input;;]"
+
+digipad.keyb_base_chan = "keyb"
+digipad.term_base_chan = "tty"
 
 -- ================
 -- Function declarations
@@ -105,7 +112,7 @@ minetest.register_node("digipad:keyb", {
 		meta:set_string("Infotext", "Keyboard")
 	end,
 	on_receive_fields = function(pos, formname, fields, sender)
-		local channel = "tty1"
+		local channel = digipad.keyb_base_chan .. "1"
 		local text = fields.input
 		if text ~= nil then
 			digiline:receptor_send(pos, digiline.rules.default, channel, text)
@@ -160,7 +167,7 @@ minetest.register_node("digipad:terminal", {
 	on_receive_fields = function(pos, formname, fields, sender)
 		local meta = minetest.env:get_meta(pos)
 		local text = fields.input
-		local channel = "tty1"
+		local channel = digipad.term_base_chan .. 1
 		if text ~= nil then
 			digipad.new_line(pos, "> " .. text)
 			
