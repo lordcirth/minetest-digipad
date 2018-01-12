@@ -1,3 +1,6 @@
+HybridDog has taken over maintaining this mod
+https://github.com/HybridDog/digipad
+
 The digipad allows you to enter a number 1-10 digits, which will be sent down
 a digiline.  You can select channels 1-3 with buttons in the formspec. channels
 are prefixed with "keypad" so Channel 1 transmits on "keypad1" etc.
